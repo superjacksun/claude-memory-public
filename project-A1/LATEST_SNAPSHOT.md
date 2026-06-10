@@ -1,0 +1,97 @@
+# 最新快照 — project-A1
+- 快照编号：S1
+- 快照时间：2026-06-10 22:47:48
+- 对话总消息数：232
+
+---
+
+## 新 AI 接入指南
+
+> 你只需要读这个文件就能了解项目全貌。
+> 需要历史细节时，参考下方「私有库索引」，告知用户你需要什么，用户一键提供。
+
+| 内容 | 地址 |
+|------|------|
+| 本快照 | https://github.com/superjacksun/claude-memory-public/blob/main/project-A1/LATEST_SNAPSHOT.md |
+| 历史快照 S1 | https://github.com/superjacksun/claude-memory-public/blob/main/project-A1/snapshots/S1_2026-06-10.md |
+| relay 内容 | https://github.com/superjacksun/claude-memory-public/blob/main/relay/ |
+
+---
+
+# 阶段快照 S1
+- 快照编号：S1  
+- 快照时间：2026-06-10 22:47:48  
+- 对话范围：消息 #173 - #232  
+- 项目：project‑A1  
+
+## 当前任务  
+验证并完善 Cloudflare Worker 与 GitHub 之间的交互链路，同时实现生成项目快照的功能，以便快速定位和回溯问题。
+
+## 当前进度  
+- ✅ 已完成：  
+  - 确认 Cloudflare Worker 已成功部署新代码（见 #231）。  
+  - 验证 GitHub Token 已在 Cloudflare 中更新且非问题根源（见 #196）。  
+  - 系统化分析错误日志，定位到旧版 Worker 代码导致的 “Unexpected token 'R' / missing action” 等错误（见 #183‑#188、#208‑#214）。  
+  - 初步设计快照系统的概念框架（见 #218‑#220）。  
+
+- 🔄 进行中：  
+  - 使用最简化的测试代码验证新 Worker 能否读取 GitHub 内容（见 #230‑#232）。  
+
+- ⏳ 待处理：  
+  - 完成快照功能的实现并集成到现有 Worker 中。  
+  - 编写并部署完整的上传/读取 API，确保兼容旧有调用方式。  
+
+## 关键决定  
+- 决定先单独实现快照功能，再回头处理完整的上传/读取流程（见 #220，原因：降低一次性改动的风险，快速获得可验证的价值）。  
+- 决定 GitHub Token 已正确更新，排除为错误根因（见 #196，原因：Token 在 Cloudflare Dashboard 中已替换，且错误仍旧出现）。  
+- 决定 Worker 代码必须升级到识别 `msgs` 字段的新版，否则会返回 “missing project or messages” 错误（见 #214，原因：旧代码仍在使用 `action` 字段）。  
+- 决定先用最简代码验证读取链路，确保基础功能可用后再加入快照逻辑（见 #230‑#232）。  
+
+## 本阶段问题及解法  
+- **问题**：Worker 返回 “Unexpected token 'R', "Request fo"” 错误 → **解法**：检查并发现是旧版 Worker 仍在使用旧的请求结构，更新代码后错误消失（见 #183‑#188、#208）。  
+- **问题**：即使更新 Token，仍出现 “Failed to fetch” → **解法**：确认请求被旧地址拦截，改为直接在浏览器新标签页输入完整 URL（见 #175‑#178）。  
+- **问题**：返回 “missing action” 或 “missing project or messages” → **解法**：将 Worker 代码升级至新版，改用 `msgs` 字段并去除旧的 `action` 参数（见 #208‑#214）。  
+- **问题**：需要快速定位历史问题的手段缺失 → **解法**：设计并实现阶段快照系统，记录关键决定、问题、解法及对应消息编号（见 #218‑#220）。  
+
+## 下一步  
+1. 在已部署的新版 Worker 上运行最简化的 `fetch` 测试脚本，确认能够成功读取 GitHub 文件内容（参考 #231‑#232）。  
+2. 根据测试结果，完善 Worker 中的快照生成 API：  
+   - 接收 `projectId`、`snapshotName`、`metadata` 参数。  
+   - 将当前项目状态（包括代码版本、配置、最近日志）写入 Cloudflare KV 或 GitHub Gist。  
+3. 编写自动化测试用例，覆盖上传、读取、快照创建三个关键路径。  
+
+## 遗留问题  
+- 仍未确认在不同网络环境下（如企业防火墙）是否会出现请求拦截，需要进一步的跨域/安全策略测试。  
+- 快照存储方案（KV vs Gist）尚未最终决定，需评估成本与访问权限。  
+- 需要制定快照的版本回滚策略，以防误操作导致数据不一致。  
+
+---
+
+## 私有库索引
+
+> 私有仓库：superjacksun/claude-memory
+> Claude 需要细节时，告知用户文件路径和消息范围，用户一键 relay 到公库即可读取。
+
+### conv_full.md（完整对话）
+- 总消息数：232 条
+- 对话阶段：
+  - #1-#232：当前全部对话
+
+### 快照文件
+- snapshots/S1_2026-06-10.md：S1 阶段快照
+
+### relay 操作说明
+当你需要某段私有内容时，请说明：
+> "我需要 conv_full.md 第 N-M 条消息"
+> 或 "我需要 snapshots/S1_日期.md 的内容"
+用户将通过书签一键将内容 relay 到公库，地址为：
+`https://github.com/superjacksun/claude-memory-public/blob/main/relay/`
+
+---
+
+## 历史快照索引
+
+| 编号 | 时间 | 对话范围 | 阶段概述 |
+|------|------|----------|----------|
+
+| S1 | 2026-06-10 | #1-#232 | 当前阶段 |
