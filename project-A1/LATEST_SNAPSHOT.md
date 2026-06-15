@@ -1,5 +1,5 @@
 # project-A1 状态快照
-- 生成时间：2026/06/15 12:25:47 JST
+- 生成时间：2026/06/15 17:07:24 JST
 - 覆盖范围：至 2026/06/12 16:51:28 JST
 - ⚠️ 此快照之后的对话可能尚未纳入，如有疑问请向用户确认最新进展
 
@@ -7,31 +7,7 @@
 
 ## 一、全局摘要
 
-We need to produce a global summary <=300 Chinese characters, earlier phases compressed, later phases more detail. Need to describe whole project from start to now. Let's count characters roughly. Aim ~250 characters.
-
-We need to mention: start with concept of bookmark script syncing conversation snapshots to private GitHub, token, repo creation. Then early bug fixing. Then migration to Cloudflare Worker, handling CORS, 500 errors, using text/plain, worker reads private repo without token, relay to public repo, sync-merge using conv_last.md, then v4 updates with React fiber timestamps, multi-window dedup, snapshot index, separate worker for snapshot building, three-part file structure and dedup rules.
-
-Let's craft ~260 characters.
-
-Count characters manually? Let's approximate.
-
-Draft:
-
-项目伊始决定用网页书签脚本手动触发把对话快照同步到 GitHub 私有仓库，并搭建多项目分层存储结构。随后创建私有仓库、生成 Fine‑grained Token、提供可直接粘贴的书签代码并完成首次文件同步。发现页面选择器不匹配导致 conv_full.md 丢失后，修正抓取逻辑并实现自动滚动、消息排序、快照生成。为解决跨域 CORS 与 Worker 500 错误，改用 text/plain 直接写入 GitHub，Worker 只处理指令并实现无 Token 读取私有文件、向公开仓库中继写入，验证全链路。随后设计 conv_last.md 的同步‑合并流程，完善快照与合并逻辑并清理书签文本。最新阶段基于 React fiber 读取完整时间戳，升级至 v4 脚本和 Worker，支持多窗口去重合并，构建快照索引体系并拆分出专职 Worker，确定快照文件三段式结构和去重规则。
-
-Now count characters: Let's count roughly.
-
-"项目伊始决定用网页书签脚本手动触发把对话快照同步到 GitHub 私有仓库，并搭建多项目分层存储结构。" (36?) Let's count: 项(1)目2伊3始4决5定6用7网8页9书10签11脚12本13手14动15触16发17把18对19话20快21照22同23步24到25 G26i27t28H29u30b31 私32有33仓34库35，36并37搭38建39多40项41目42分43层44存45储46结47构48。=48 characters.
-
-Second sentence: "随后创建私有仓库、生成 Fine‑grained Token、提供可直接粘贴的书签代码并完成首次文件同步。" Count: 随1后2创3建4私5有6仓7库、8生9成10  (Fine‑grained token maybe counts as multiple characters) Let's approximate 30 characters. So total ~78.
-
-Third: "发现页面选择器不匹配导致 conv_full.md 丢失后，修正抓取逻辑并实现自动滚动、消息排序、快照生成。" Approx 40. total ~118.
-
-Fourth: "为解决跨域 CORS 与 Worker 500 错误，改用 text/plain 直接写入 GitHub，Worker 只处理指令并实现无 Token 读取私有文件、向公开仓库中继写入，验证全链路。" Approx 55. total ~173.
-
-Fifth: "随后设计 conv_last.md 的同步‑合并流程，完善快照与合并逻辑并清理书签文本。" approx 30. total ~203.
-
-Sixth: "最新阶段
+项目起初确定通过网页书签脚本手动触发，将对话快照以分层结构同步至 GitHub 私有仓库，并生成 Fine‑grained Token。随后创建私有仓库、编写可直接粘贴的 BOOKMARKLET_FINAL.txt 并在 Edge 中完成书签添加。发现页面 HTML 选择器不匹配导致 conv_full.md 丢失后，修正抓取逻辑并实现自动滚动、消息排序与快照生成。为解决跨域 CORS 预检和 Worker 500 错误，改用 text/plain 传输大数据，Worker 只处理指令生成快照，并成功部署可无 Token 读取私有仓库、支持任意路径且禁用缓存的 Cloudflare Worker，实现私有‑公开仓库的 relay 写入。进一步验证链路后，设计并实现基于 conv_last.md 的同步‑合并流程，完善快照与合并逻辑并清理书签格式。最新阶段利用 React fiber 读取完整时间戳，更新书签 v4 与 Worker v4 支持多窗口去重合并，构建快照索引体系，决定新建独立 Worker 负责三段式快照构建并执行去重规则，奠定后续扩展基础。
 
 ---
 
@@ -58,33 +34,40 @@ Sixth: "最新阶段
 ## 三、当前状态
 
 ```yaml
-STATUS: "核心功能已稳定（书签 v4、Worker v4），快照系统概念已完成，实际快照生成仍在开发中"
-CURRENT_TASK: "在独立 Worker (claude-snapshot) 中实现完整的 build_index 与快照自动化流程，并完成全链路测试"
+STATUS: "Operational with core snapshot workflow functional, but several refinements pending"
+CURRENT_TASK: "Stabilize sync/merge pipeline, complete snapshot index build, and automate snapshot publication"
 WORKING:
-  - "书签脚本 v4：读取完整时间戳、写入 conv_last.md，支持多窗口、多账号去重合并"
-  - "Worker v4：基于时间戳/内容哈希去重，按 ISO 时间排序，生成快照索引地图"
-  - "三段式快照文件结构（全局摘要、索引地图、结构化当前状态）已设计"
-  - "MILESTONE 标记格式 ✅ MILESTONE: 已确定"
+  - Private↔Public repository link verification
+  - Sync/Merge flow using `conv_last.md`
+  - Bookmark v4 (writes timestamps, account, window info)
+  - Worker v4 (deduplication by timestamp, ISO sorting, multi‑window merge)
+  - Three‑segment snapshot file (`LATEST_SNAPSHOT.md`) structure
+  - Independent `claude-snapshot` Worker scaffold (index build placeholder)
+  - MILESTONE marker format (`✅ MILESTONE:`) recognition (basic)
+  - CleanText basic trimming (partial)
 NOT_WORKING:
-  - "claude-snapshot Worker 中的 build_index 逻辑未完成"
-  - "首次快照的自动 MILESTONE 检测（B 方案）未实现"
-  - "基于 token 数的快照划分函数缺失"
-  - "LATEST_SNAPSHOT.md 从私有仓库同步到公开仓库的自动化脚本未完成"
-  - "全链路测试（书签 → Worker → snapshot → sync）尚未通过"
-  - "完整文档、使用说明及回溯方法仍在编写"
+  - Final `cleanText` implementation and cross‑window sync validation
+  - Full `build_index` logic in `claude-snapshot` Worker
+  - Automatic first‑snapshot MILESTONE detection (B‑方案)
+  - Token‑counting function for snapshot segmentation
+  - Automated script syncing `LATEST_SNAPSHOT.md` to public repo
+  - End‑to‑end chain test ensuring no writes to `conv_full.md`
+  - Comprehensive documentation of snapshot generation and index usage
 CONSTRAINTS:
-  - "web_fetch 只能访问对话或搜索出现的 URL，必须在提示中提供完整文件链接"
-  - "书签脚本大小受限，复杂逻辑必须迁移至 Worker"
-  - "CSP 阻止外部 script 加载，所有交互必须在书签内部或通过 Worker 中转"
-  - "正则解析在出现 '---' 分隔符时会截断，已改为 '\\n---\\n' 分割"
-  - "时间戳仅在 React fiber 中以短格式存在，需要通过 fiber 读取或模拟 mouseover"
-  - "出于隐私，账号信息使用昵称+chatId 组合，避免泄露邮箱"
-  - "快照划分使用 token 数而非行数，需要自定义 token 计数函数"
+  - `web_fetch` only accesses URLs present in the conversation or search results
+  - Bookmark script size limited → heavy logic must reside in Workers
+  - CSP blocks external script loading; only inline bookmark code allowed
+  - Regex parsing fails on messages containing `"---"` → use `\n---\n` delimiter
+  - Timestamp only available in short format via tooltip; resolved via React fiber reading
+  - Privacy: direct email unavailable; use nickname + `chatId` as identifier
+  - Snapshot slicing based on token count, not line count
 NEXT_ACTION:
-  - "在 claude-snapshot Worker 中实现并单元测试 build_index（读取 conv_last.md、生成索引、写入 LATEST_SNAPSHOT.md）"
-  - "实现自动 MILESTONE 检测 B 方案：扫描快照索引，首次出现 ✅ MILESTONE: 时触发标记"
-  - "编写 token 计数函数并在快照划分逻辑中使用，以确保每段不超 token 限额"
-  - "开发并部署脚本，将 LATEST_SNAPSHOT.md 从私有仓库同步到公开仓库（使用 GitHub API）"
-  - "执行全链路集成测试：书签写入 → Worker 合并 → snapshot 生成 → 同步，确保不修改 conv_full.md"
-  - "更新 README 与内部文档，说明快照生成、索引使用、去重规则及回溯方法"
+  - Implement and test the final `cleanText` function across multiple browser windows
+  - Update Worker `parseMessages` to handle the cleaned text format
+  - Develop complete `build_index` algorithm in `claude-snapshot` Worker and deploy to test environment
+  - Create and integrate the automatic MILESTONE detection (B‑方案) for the first snapshot
+  - Write token‑counting utility and apply it in snapshot segment boundaries
+  - Build automation script to push `LATEST_SNAPSHOT.md` from private to public repository
+  - Conduct full‑chain testing: sync → merge → snapshot generation → public sync, verifying no modifications to `conv_full.md`
+  - Draft and publish documentation covering snapshot workflow, index usage, and rollback procedures
 ```
